@@ -1,20 +1,28 @@
 const express = require("express");
+const res = require("express/lib/response");
+const fs = require('fs')
+const {adminAuthMiddelware,userAuth} = require("../middlewares/AuthMiddelware");
 const app = express();
-const port = 3000;
+const port = 7777;
 
-const requestTime = function (req,res,next){
-    req.requestTime = Date.now()
-    next();
-};
+app.use('/admin', adminAuthMiddelware,userAuth);
 
-app.use(requestTime)
+app.get('/admin/getAllData',(req,res,next)=>{ 
 
-app.use('/',(req,res)=>{
-let requestText = 'Hello World <br>'
-requestText += `<small>${req.requestTime} ${req.ip} ${req.method}</small>`
-res.send(requestText);
-})
+        res.send("All data is here")
+
+ })
+
+ app.delete('/admin/deleteData',(req,res,next)=>{ 
+ 
+        res.send("Data deleted successfully")
+  
+ })
 
 app.listen(port, ()=>{
     console.log(`Servers is listen at ${port} port`)
 })
+
+
+
+
