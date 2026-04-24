@@ -1,34 +1,32 @@
 const express = require("express");
-const res = require("express/lib/response");
-const fs = require('fs')
-const {adminAuthMiddelware,userAuth} = require("../middlewares/AuthMiddelware");
+const connectDB = require('./config/database');
 const app = express();
 const port = 7777;
+const User = require('./models/user');
 
-app.use('/admin', adminAuthMiddelware);
-app.use('/user', userAuth);
+app.use(express.json());
 
-app.get('/admin/getAllData',(req,res,next)=>{ 
+app.post('/signup', async (req,res)=>{
+console.log(req.body);
+ const user  =  new User(req.body);
+ await user.save();
+res.send("User Created successfully ✅")
 
-        res.send("All data is here")
 
- })
+})
 
- app.delete('/admin/deleteData',(req,res,next)=>{ 
- 
-        res.send("Data deleted successfully")
-  
- })
-
- app.get('/user',(req,res,next)=>{ 
-
-        res.send("User data is here")
-
- })
-
+connectDB()
+.then(()=>{
 app.listen(port, ()=>{
     console.log(`Servers is listen at ${port} port`)
 })
+})
+.catch((err)=>{
+       console.log("Database connection failed ❌",err);
+})
+
+
+
 
 
 

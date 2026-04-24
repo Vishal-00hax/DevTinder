@@ -22,7 +22,6 @@ else{
 }
  }
 
-
 module.exports = {adminAuthMiddelware,userAuth};
 
 
