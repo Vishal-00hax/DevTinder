@@ -8,11 +8,25 @@ app.use(express.json());
 
 app.post('/signup', async (req,res)=>{
 console.log(req.body);
- const user  =  new User(req.body);
+const user  =  new User(req.body);
+try{
  await user.save();
 res.send("User Created successfully ✅")
+}
+catch(err){
+    res.status(400).send("User Creating failed ❌",err);
+}
+})
 
-
+app.get('/feed', async (req,res)=>{
+    const name = req.query.firstName;
+try{
+const user = await User.find({firstName:name});
+res.send(user);
+}
+catch(err){
+res.status(400).send("Error while fetching users",err);
+}
 })
 
 connectDB()
