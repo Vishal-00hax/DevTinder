@@ -19,14 +19,32 @@ catch(err){
 })
 
 app.get('/feed', async (req,res)=>{
-    const name = req.query.firstName;
+    const fname = req.query.firstName;
+    const lname = req.query.lastName;
 try{
-const user = await User.find({firstName:name});
+const user = await User.find({firstName:fname , lastName:lname});
 res.send(user);
 }
 catch(err){
 res.status(400).send("Error while fetching users",err);
 }
+})
+
+app.patch('/user/:user_id', async (req,res)=>{
+    const userid = req.params.user_id;
+    const update = req.body;
+    try{
+      const user = await User.findByIdAndUpdate(userid, update);
+        if (!user){
+            res.send("User not Found")
+        }
+        else{
+            res.send("User updated sucessfuly")
+        }
+    }
+    catch(err){
+        res.status(400).send("Error during user update", err)
+    }
 })
 
 connectDB()
