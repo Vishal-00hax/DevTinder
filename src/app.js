@@ -47,6 +47,24 @@ app.patch('/user/:user_id', async (req,res)=>{
     }
 })
 
+app.delete("/user/:user_id", async (req,res)=>{
+
+const userid = req.params.user_id;
+try{
+    const deleteUser = await User.findByIdAndDelete(userid);
+    if(!deleteUser){
+        res.send("User not found for deletion")
+    }
+    else{
+        res.send("User deleted sucessfully")
+    }
+}
+catch(err){
+res.status(400).send("Error during deletion", err)
+}
+})
+
+
 connectDB()
 .then(()=>{
 app.listen(port, ()=>{
