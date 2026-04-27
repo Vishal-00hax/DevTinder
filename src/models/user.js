@@ -23,7 +23,8 @@ const userSchema = new Schema({
         type:String
     }, 
     timeStamp: {
-        type: Date
+        type: Date,
+        default: Date.now
     }
 
 })
