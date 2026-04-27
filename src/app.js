@@ -17,7 +17,11 @@ catch(err){
     if(err.code === 11000){
         res.status(400).send("Eamil already exists")
     }
-    res.status(400).send("User Creating failed ❌",err);
+    if(err.name === "ValidationError"){
+        const message = Object.values(err.errors).map((val)=> val.message);
+        res.status(400).send(message);
+    }
+    res.status(400).send("User Creating failed ",err);
 }
 })
 

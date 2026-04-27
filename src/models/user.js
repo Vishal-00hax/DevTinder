@@ -20,8 +20,14 @@ const userSchema = new Schema({
         type:Number
     },
     gender:{
-        type:String
-    }, 
+        type:String,
+        lowercase: true,
+        validate: {
+        validator: function(v){
+            return ["male","female","other"].includes(v);
+        },
+        message: props => `${props.value} is not a vaild gender`
+    }},
     timeStamp: {
         type: Date,
         default: Date.now
