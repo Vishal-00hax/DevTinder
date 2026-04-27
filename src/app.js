@@ -7,13 +7,16 @@ const User = require('./models/user');
 app.use(express.json());
 
 app.post('/signup', async (req,res)=>{
-console.log(req.body);
+// console.log(req.body);
 const user  =  new User(req.body);
 try{
  await user.save();
 res.send("User Created successfully ✅")
 }
 catch(err){
+    if(err.code === 11000){
+        res.status(400).send("Eamil already exists")
+    }
     res.status(400).send("User Creating failed ❌",err);
 }
 })
