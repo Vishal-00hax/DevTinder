@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const {Schema} = mongoose;
 
@@ -18,7 +19,12 @@ const userSchema = new Schema({
         type:String,
         required: true,
         unique: true, // use for prevent duplicates
-        match: [/^\S+@\S+\.\S+$/, 'Please fill a valid email address'] // Basic Regex validation
+          validate: {
+        validator: function(value){
+            return validator.isEmail(value);
+        }, // custom validation funcation
+        message: props => `${props.value} is not a vaild email`
+    }
     },
     password:{
         type:String,
@@ -26,14 +32,25 @@ const userSchema = new Schema({
     },
     age:{
         type:Number,
-        min: 18
+        min: 3
+    },
+        phone:{
+        type:String,
+        min: 10,
+        trim: true,
+         validate: {
+        validator: function(value){
+            return validator.isMobilePhone(value); 
+        }, // custom validation funcation
+        message: props => `${props.value} is not a vaild phone`
+    }
     },
     gender:{
         type:String,
         lowercase: true,
         validate: {
-        validator: function(v){
-            return ["male","female","other"].includes(v); 
+        validator: function(value){
+            return ["male","female","other"].includes(value); 
         }, // custom validation funcation
         message: props => `${props.value} is not a vaild gender`
     }},

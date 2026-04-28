@@ -6,8 +6,7 @@ mongoose.connect(
     "mongodb+srv://vishalsinghpanghal_db_user:vishalsinghpanghal@namastaynode.3apklvh.mongodb.net/namastaynode_DB"
 )
 };
-connectDB()
-.then(()=>{
+connectDB().then(()=>{
     console.log("Database connected Succesfully ✅")
 })
 .catch((err)=>{
