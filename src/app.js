@@ -28,6 +28,26 @@ catch(err){
 }
 })
 
+app.post('/login', async (req,res)=>{
+    try{
+        const { emailId, password} = req.body;
+        const user = await User.findOne({emailId: emailId});
+        if(!user){
+            return res.status(400).send("User not found for this email")
+        }
+        const isPasswordValid = await bycrypt.compare(password, user.password);
+        if(isPasswordValid){
+            return res.send("Login seccessfull")
+        }
+        else{
+            return res.status(400).send("Invalid credentials")
+        }
+    }
+    catch(err){
+ return res.status(400).send("Invalid credentials" + err.massage)
+    }
+})
+
 app.get('/feed', async (req,res)=>{
     const fname = req.query.firstName;
     const lname = req.query.lastName;
