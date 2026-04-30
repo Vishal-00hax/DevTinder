@@ -4,48 +4,50 @@ const app = express();
 const port = 7777;
 const User = require('./models/user');
 const bycrypt = require('bcrypt')
+const validateSignupData  = require('./models/utils/validations');
 
 app.use(express.json());
 
 app.post('/signup', async (req,res)=>{
 // console.log(req.body);
 try{
-    const hashedPassword = await bycrypt.hash(req.body.password,10) // password hasing 
-
-    const user  =  new User({ ...req.body, password: hashedPassword});
+    validateSignupData(req); // api level validation
+    const { firstName, lastName, emailId, password, age, gender } = req.body;
+    const passwordHash = await bycrypt.hash(password, 10);
+    req.body.password = passwordHash;
+     const user = new User({
+        firstName,
+        lastName,
+        emailId,
+        password: passwordHash,
+        age,
+        gender
+     });
     await user.save();
 res.send("User Created successfully ✅")
 }
 catch(err){
-    if(err.code === 11000){
-       return res.status(400).send("Eamil already exists")
-    }
-    if(err.name === "ValidationError"){
-        const message = Object.values(err.errors).map((val)=> val.message);
-        return res.status(400).send(message);
-    }
-   return res.status(400).send("User Creating failed " + err.massage);
+ 
+   return res.status(400).send("User Creating failed " + err.message);
 }
 })
 
 app.post('/login', async (req,res)=>{
-    try{
-        const { emailId, password} = req.body;
-        const user = await User.findOne({emailId: emailId});
-        if(!user){
-            return res.status(400).send("User not found for this email")
-        }
-        const isPasswordValid = await bycrypt.compare(password, user.password);
-        if(isPasswordValid){
-            return res.send("Login seccessfull")
-        }
-        else{
-            return res.status(400).send("Invalid credentials")
-        }
-    }
-    catch(err){
- return res.status(400).send("Invalid credentials" + err.massage)
-    }
+   try{
+      const {emailId, password} = req.body;
+      const user = await User.findOne({emailId});
+      if(!user){
+         res.status(400).send("User not fount")
+      }
+     const validPassword = await bycrypt.compare(password, user.password);
+     if(!validPassword){
+      return res.status(400).send("Invalid password")
+     }
+     return res.send("Login sucessfull")
+   }
+   catch(err){
+      return res.status(400).send("Error during login" + err.massage)
+   }
 })
 
 app.get('/feed', async (req,res)=>{
