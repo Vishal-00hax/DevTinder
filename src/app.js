@@ -63,12 +63,12 @@ app.get('/profile', async (req,res)=>{
    const cookie = req.cookies;
    const {token} = cookie;
    if(!token){
-      returnnres.status(400).send("Invalid token or token not found")
+      return res.status(400).send("Invalid token or token not found")
    }
    const decodecookie = jwt.verify(token, "Dev@Tinder$790");
-   console.log(decodecookie);
+  
    const user = await User.findById(decodecookie._id);
-   console.log(cookie);
+  con
    if(user){
    return res.send(user);
    }
@@ -76,7 +76,7 @@ app.get('/profile', async (req,res)=>{
       return res.status(400).send("User not found")
    }
    }catch(err){
-      return res.status(400).send("Error while fetching profile" + err.message)
+      return res.status(400).send(err.message)
    }
 })
 
