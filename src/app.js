@@ -3,17 +3,20 @@ const connectDB = require('./config/database');
 const app = express();
 const port = 7777;
 const User = require('./models/user');
-const bycrypt = require('bcrypt')
+const bcrypt = require('bcrypt')
 const validateSignupData  = require('./models/utils/validations');
+const cookieParser = require('cookie-parser');
+const jwt = require('jsonwebtoken');
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post('/signup', async (req,res)=>{
 // console.log(req.body);
 try{
     validateSignupData(req); // api level validation
     const { firstName, lastName, emailId, password, age, gender } = req.body;
-    const passwordHash = await bycrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(password, 10);
     req.body.password = passwordHash;
      const user = new User({
         firstName,
@@ -37,16 +40,43 @@ app.post('/login', async (req,res)=>{
       const {emailId, password} = req.body;
       const user = await User.findOne({emailId});
       if(!user){
-         res.status(400).send("User not fount")
+        return res.status(400).send("User not found")
       }
-     const validPassword = await bycrypt.compare(password, user.password);
-     if(!validPassword){
+     const validPassword = await bcrypt.compare(password, user.password);
+     if(validPassword){
+     const token = await jwt.sign({_id: user._id},"Dev@Tinder$790");
+     console.log(token);
+     res.cookie("token", token);
+     res.send("Login Successfull:"+ token)
+     }
+     else{
       return res.status(400).send("Invalid password")
      }
-     return res.send("Login sucessfull")
    }
    catch(err){
-      return res.status(400).send("Error during login" + err.massage)
+      return res.status(400).send("Error during login" + err.message)
+   }
+})
+
+app.get('/profile', async (req,res)=>{
+   try{
+   const cookie = req.cookies;
+   const {token} = cookie;
+   if(!token){
+      returnnres.status(400).send("Invalid token or token not found")
+   }
+   const decodecookie = jwt.verify(token, "Dev@Tinder$790");
+   console.log(decodecookie);
+   const user = await User.findById(decodecookie._id);
+   console.log(cookie);
+   if(user){
+   return res.send(user);
+   }
+   else{
+      return res.status(400).send("User not found")
+   }
+   }catch(err){
+      return res.status(400).send("Error while fetching profile" + err.message)
    }
 })
 
