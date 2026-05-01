@@ -68,7 +68,7 @@ app.get('/profile', async (req,res)=>{
    const decodecookie = jwt.verify(token, "Dev@Tinder$790");
   
    const user = await User.findById(decodecookie._id);
-  con
+  
    if(user){
    return res.send(user);
    }
@@ -76,7 +76,7 @@ app.get('/profile', async (req,res)=>{
       return res.status(400).send("User not found")
    }
    }catch(err){
-      return res.status(400).send(err.message)
+      return res.status(400).send("massage" + err.message)
    }
 })
 
