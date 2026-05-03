@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt')
 const validateSignupData  = require('./models/utils/validations');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
+const { userAuth } = require("./config/middlewares/AuthMiddelware");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -45,7 +46,7 @@ app.post('/login', async (req,res)=>{
      const validPassword = await bcrypt.compare(password, user.password);
      if(validPassword){
      const token = await jwt.sign({_id: user._id},"Dev@Tinder$790");
-     console.log(token);
+     //console.log(token);
      res.cookie("token", token);
      res.send("Login Successfull:"+ token)
      }
@@ -58,25 +59,12 @@ app.post('/login', async (req,res)=>{
    }
 })
 
-app.get('/profile', async (req,res)=>{
+app.get('/profile',userAuth, async (req,res)=>{
    try{
-   const cookie = req.cookies;
-   const {token} = cookie;
-   if(!token){
-      return res.status(400).send("Invalid token or token not found")
-   }
-   const decodecookie = jwt.verify(token, "Dev@Tinder$790");
-  
-   const user = await User.findById(decodecookie._id);
-  
-   if(user){
-   return res.send(user);
-   }
-   else{
-      return res.status(400).send("User not found")
-   }
+   const user = req.user;
+    res.send(user);
    }catch(err){
-      return res.status(400).send("massage" + err.message)
+      return res.status(400).send("ERROR:" + err.message)
    }
 })
 
