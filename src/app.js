@@ -45,10 +45,12 @@ app.post('/login', async (req,res)=>{
       }
      const validPassword = await bcrypt.compare(password, user.password);
      if(validPassword){
-     const token = await jwt.sign({_id: user._id},"Dev@Tinder$790");
+     const token = await jwt.sign({_id: user._id},"Dev@Tinder$790", {expiresIn: "2d"});
      //console.log(token);
-     res.cookie("token", token);
-     res.send("Login Successfull:"+ token)
+     res.cookie("token", token , 
+      {expires: new Date(Date.now() + 48 * 3600000)}
+   );
+     res.send("Login Successfull")
      }
      else{
       return res.status(400).send("Invalid password")
@@ -68,61 +70,15 @@ app.get('/profile',userAuth, async (req,res)=>{
    }
 })
 
-app.get('/feed', async (req,res)=>{
-    const fname = req.query.firstName;
-    const lname = req.query.lastName;
-try{
-const user = await User.find({firstName:fname , lastName:lname});
-  res.send(user);
-}
-catch(err){
- res.status(400).send("Error while fetching users",err);
-}
+app.post('/sendConectionRequest', userAuth , async (req,res)=>{
+   try{
+      const user = req.user;
+   console.log("Send connection request API is called")
+   res.send("Send connection request API is called" + user.firstName)
+   }catch(err){
+       res.status(400).send("Error: "+ err.message)
+   }
 })
-
-app.patch('/user/:user_id', async (req,res)=>{
-    const userid = req.params.user_id;
-    const update = req.body;
-    try{
-         const allowedUpdates = ["firstName", "lastName", "age", "gender"];
-         const updateKeys = Object.keys(req.body);
-         const isValidOpration = updateKeys.every((key)=> allowedUpdates.includes(key));
-         if(!isValidOpration){
-           return res.status(400).send("Invalid updates! Only firstName, lastName, age , and geder can be updated.")
-         }
-      const user = await User.findByIdAndUpdate(userid, update,{
-        runValidators: true,
-        returnDocument: "after"
-      });
-        if (!user){
-          return  res.send("User not Found")
-        }
-        else{
-           return res.send("User updated sucessfuly")
-        }
-    }
-    catch(err){
-       return res.status(400).send("Error during user update" + err.message)
-    }
-})
-
-app.delete("/user/:user_id", async (req,res)=>{
-
-const userid = req.params.user_id;
-try{
-    const deleteUser = await User.findByIdAndDelete(userid);
-    if(!deleteUser){
-       return res.send("User not found for deletion")
-    }
-    else{
-       return res.send("User deleted sucessfully")
-    }
-}
-catch(err){
-res.status(400).send("Error during deletion", err)
-}
-})
-
 
 connectDB()
 .then(()=>{
