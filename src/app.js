@@ -41,13 +41,11 @@ app.post('/login', async (req,res)=>{
       const {emailId, password} = req.body;
       const user = await User.findOne({emailId});
       if(!user){
-        return res.status(400).send("User not found")
-      }
-     const validPassword = await bcrypt.compare(password, user.password);
+        return res.status(400).send("User not found")}
+        const validPassword = await user.isValidPassword(password);
      if(validPassword){
-     const token = await jwt.sign({_id: user._id},"Dev@Tinder$790", {expiresIn: "2d"});
-     //console.log(token);
-     res.cookie("token", token , 
+      const token = await user.getJWT();
+      res.cookie("token", token , 
       {expires: new Date(Date.now() + 48 * 3600000)}
    );
      res.send("Login Successfull")
