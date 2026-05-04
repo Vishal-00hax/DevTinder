@@ -65,6 +65,7 @@ const userSchema = new Schema({
 userSchema.methods.getJWT = async function (){ // Dont use arrow fun here
     user = this;
     const token = await jwt.sign({_id: user._id},"Dev@Tinder$790", {expiresIn: "2d"});
+    return token;
 };
 userSchema.methods.isValidPassword = async function (userInputPassword){
     user = this;
