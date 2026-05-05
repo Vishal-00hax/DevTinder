@@ -32,6 +32,27 @@ const userSchema = new Schema({
         type:String,
         required: true
     },
+    photoUrl:{
+        type:String,
+        validate: {
+    validator: function (value) {
+      if (!value) return true; // allow empty if optional
+
+      // 1. Strict URL validation
+      const isValidUrl = validator.isURL(value, {
+        protocols: ["https"],
+        require_protocol: true,
+      });
+
+      if (!isValidUrl) return false;
+
+      // 2. Image extension check (handles query params)
+      return /\.(jpg|jpeg|png|webp)(\?|$)/i.test(value);
+    },
+
+    message: "photoUrl must be a valid HTTPS image URL (.jpg, .jpeg, .png, .webp)",
+  }
+    },
     age:{
         type:Number,
         min: 3
